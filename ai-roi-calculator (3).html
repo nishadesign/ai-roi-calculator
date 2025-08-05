@@ -1,0 +1,1146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Agent ROI Calculator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        // Configure Tailwind for custom colors and animations
+        tailwind.config = {
+            theme: {
+                extend: {
+                    animation: {
+                        'spin-slow': 'spin 3s linear infinite',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <h1 class="text-3xl font-bold text-gray-900">AI Agent ROI Calculator</h1>
+            <p class="mt-2 text-gray-600">Estimate the return on investment for your AI agent deployments</p>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Input Form -->
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <h2 class="text-2xl font-bold text-gray-900 mb-6">Calculate Your ROI</h2>
+                
+                <!-- Error Message Container -->
+                <div id="errorMessage" class="hidden mb-4 p-4 bg-red-50 border border-red-200 rounded-md">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm text-red-800" id="errorText"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <form id="roiForm" class="space-y-6">
+                    <!-- Task Name -->
+                    <div>
+                        <label for="taskName" class="block text-sm font-medium text-gray-700 mb-2">Task Name</label>
+                        <input type="text" id="taskName" placeholder="e.g., Draft Sales Email" 
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+
+                    <!-- Median Human Time -->
+                    <div>
+                        <label for="medianTime" class="block text-sm font-medium text-gray-700 mb-2">Median Human Time on Task (minutes)</label>
+                        <input type="number" id="medianTime" placeholder="15" min="1" step="1"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+
+                    <!-- Task Frequency -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Task Frequency</label>
+                        <div class="flex gap-2">
+                            <input type="number" id="taskFrequency" placeholder="5" min="1" step="1"
+                                   class="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            <select id="frequencyUnit" 
+                                    class="px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                <option value="per day">per day</option>
+                                <option value="per week">per week</option>
+                                <option value="per month">per month</option>
+                                <option value="per year">per year</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Task Complexity -->
+                    <div>
+                        <label for="taskComplexityScore" class="block text-sm font-medium text-gray-700 mb-2">Task Complexity Score</label>
+                        <div class="flex gap-2">
+                            <select id="taskComplexityScore" 
+                                    class="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                <option value="">Select complexity...</option>
+                                <option value="Very Low">Very Low</option>
+                                <option value="Low">Low</option>
+                                <option value="Medium">Medium</option>
+                                <option value="High">High</option>
+                                <option value="Very High">Very High</option>
+                            </select>
+                            <button type="button" id="openTaskComplexityModal" 
+                                    class="px-3 py-2 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded-md text-sm font-medium transition-colors duration-200">
+                                Help Me Choose
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Current Action Maturity -->
+                    <div>
+                        <label for="currentActionMaturityScore" class="block text-sm font-medium text-gray-700 mb-2">Current Action Maturity Score</label>
+                        <div class="flex gap-2">
+                            <select id="currentActionMaturityScore" 
+                                    class="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                <option value="">Select current maturity...</option>
+                                <option value="Very Low">Very Low</option>
+                                <option value="Low">Low</option>
+                                <option value="Medium">Medium</option>
+                                <option value="High">High</option>
+                                <option value="Very High">Very High</option>
+                            </select>
+                            <button type="button" id="openCurrentActionMaturityModal" 
+                                    class="px-3 py-2 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded-md text-sm font-medium transition-colors duration-200">
+                                Help Me Choose
+                            </button>
+                        </div>
+                        <p class="mt-1 text-xs text-gray-500">Potential calculations assume "Very High" maturity level</p>
+                    </div>
+
+                    <!-- Hourly Rate -->
+                    <div>
+                        <label for="hourlyRate" class="block text-sm font-medium text-gray-700 mb-2">Hourly Rate of Seller ($)</label>
+                        <input type="number" id="hourlyRate" placeholder="50" min="1" step="0.01"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+
+                    <!-- Number of Sellers -->
+                    <div>
+                        <label for="numSellers" class="block text-sm font-medium text-gray-700 mb-2">Number of Sellers</label>
+                        <input type="number" id="numSellers" placeholder="100" min="1" step="1"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+
+                    <!-- Development Cost -->
+                    <div>
+                        <label for="devCost" class="block text-sm font-medium text-gray-700 mb-2">Development Cost ($)</label>
+                        <input type="number" id="devCost" placeholder="10000" min="0" step="0.01"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+
+                    <!-- Monitoring & Maintenance -->
+                    <div>
+                        <label for="maintenanceCost" class="block text-sm font-medium text-gray-700 mb-2">Monitoring & Maintenance Costs ($ per year)</label>
+                        <input type="number" id="maintenanceCost" placeholder="2000" min="0" step="0.01"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+
+                    <!-- Change Management & Training -->
+                    <div>
+                        <label for="trainingCost" class="block text-sm font-medium text-gray-700 mb-2">Change Management & Training Costs ($)</label>
+                        <input type="number" id="trainingCost" placeholder="5000" min="0" step="0.01"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+
+                    <!-- Calculate Button -->
+                    <button type="submit" id="calculateBtn"
+                            class="w-full bg-blue-600 text-white py-3 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 font-medium transition-colors duration-200">
+                        Calculate ROI
+                    </button>
+                </form>
+            </div>
+
+            <!-- Results Section -->
+            <div class="space-y-6">
+                <!-- Results Display -->
+                <div id="resultsSection" class="bg-white rounded-lg shadow-lg p-6 hidden">
+                    <h2 class="text-2xl font-bold text-gray-900 mb-6">ROI Results</h2>
+                    
+                    <!-- Current Results -->
+                    <div class="mb-8">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4 border-b pb-2">Current Performance</h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div class="bg-blue-50 p-4 rounded-lg">
+                                <p class="text-sm text-blue-600 font-medium">Time Savings (hours/year)</p>
+                                <p class="text-2xl font-bold text-blue-800" id="currentTimeSavings">-</p>
+                            </div>
+                            <div class="bg-green-50 p-4 rounded-lg">
+                                <p class="text-sm text-green-600 font-medium">Cost Savings (per year)</p>
+                                <p class="text-2xl font-bold text-green-800" id="currentCostSavings">-</p>
+                            </div>
+                            <div class="bg-purple-50 p-4 rounded-lg">
+                                <p class="text-sm text-purple-600 font-medium">ROI per Agent</p>
+                                <p class="text-2xl font-bold text-purple-800" id="currentAgentROI">-</p>
+                            </div>
+                            <div class="bg-indigo-50 p-4 rounded-lg">
+                                <p class="text-sm text-indigo-600 font-medium">Organizational ROI</p>
+                                <p class="text-2xl font-bold text-indigo-800" id="currentOrgROI">-</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Potential Results -->
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4 border-b pb-2">Potential Performance</h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div class="bg-blue-50 p-4 rounded-lg">
+                                <p class="text-sm text-blue-600 font-medium">Time Savings (hours/year)</p>
+                                <p class="text-2xl font-bold text-blue-800" id="potentialTimeSavings">-</p>
+                            </div>
+                            <div class="bg-green-50 p-4 rounded-lg">
+                                <p class="text-sm text-green-600 font-medium">Cost Savings (per year)</p>
+                                <p class="text-2xl font-bold text-green-800" id="potentialCostSavings">-</p>
+                            </div>
+                            <div class="bg-purple-50 p-4 rounded-lg">
+                                <p class="text-sm text-purple-600 font-medium">ROI per Agent</p>
+                                <p class="text-2xl font-bold text-purple-800" id="potentialAgentROI">-</p>
+                            </div>
+                            <div class="bg-indigo-50 p-4 rounded-lg">
+                                <p class="text-sm text-indigo-600 font-medium">Organizational ROI</p>
+                                <p class="text-2xl font-bold text-indigo-800" id="potentialOrgROI">-</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Insights Section -->
+                <div id="insightsSection" class="bg-white rounded-lg shadow-lg p-6 hidden">
+                    <h2 class="text-2xl font-bold text-gray-900 mb-6">AI-Generated Insights</h2>
+                    
+                    <!-- Loading State -->
+                    <div id="insightsLoading" class="flex items-center justify-center py-8">
+                        <div class="flex flex-col items-center">
+                            <div class="animate-spin-slow rounded-full h-12 w-12 border-4 border-blue-200 border-t-blue-600 mb-4"></div>
+                            <p class="text-gray-600">Generating personalized insights...</p>
+                        </div>
+                    </div>
+
+                    <!-- Insights Content -->
+                    <div id="insightsContent" class="hidden">
+                        <div class="prose max-w-none">
+                            <div id="insightsText" class="text-gray-700 whitespace-pre-wrap"></div>
+                        </div>
+                    </div>
+
+                    <!-- Error State -->
+                    <div id="insightsError" class="hidden p-4 bg-yellow-50 border border-yellow-200 rounded-md">
+                        <div class="flex">
+                            <div class="flex-shrink-0">
+                                <svg class="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                            <div class="ml-3">
+                                <p class="text-sm text-yellow-800">Unable to generate insights at this time. Please try again later.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Task Complexity Modal -->
+    <div id="taskComplexityModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div id="taskComplexityModalOverlay" class="absolute inset-0"></div>
+        <div class="bg-white p-6 rounded-lg shadow-xl max-w-4xl w-full mx-4 relative z-10">
+            <button id="closeTaskComplexityModal" class="absolute top-3 right-3 text-gray-600 hover:text-gray-900 text-2xl font-bold">&times;</button>
+            <h2 class="text-2xl font-semibold mb-4 text-gray-800">Determine Task Complexity</h2>
+            <p class="mb-4 text-gray-700">Select the option that best describes your task for each criterion:</p>
+
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200 border border-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Criterion</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Your Selection</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description/Examples</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900"># of Steps</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                <div class="flex flex-wrap gap-2">
+                                    <label class="flex items-center space-x-2">
+                                        <input type="radio" name="steps" value="1-2" class="form-radio text-indigo-600">
+                                        <span>1-2</span>
+                                    </label>
+                                    <label class="flex items-center space-x-2">
+                                        <input type="radio" name="steps" value="2-3" class="form-radio text-indigo-600">
+                                        <span>2-3</span>
+                                    </label>
+                                    <label class="flex items-center space-x-2">
+                                        <input type="radio" name="steps" value="3-5" class="form-radio text-indigo-600">
+                                        <span>3-5</span>
+                                    </label>
+                                    <label class="flex items-center space-x-2">
+                                        <input type="radio" name="steps" value="5-7" class="form-radio text-indigo-600">
+                                        <span>5-7</span>
+                                    </label>
+                                    <label class="flex items-center space-x-2">
+                                        <input type="radio" name="steps" value="7+" class="form-radio text-indigo-600">
+                                        <span>7+</span>
+                                    </label>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 text-sm text-gray-500">The number of distinct actions or sub-tasks required to complete the task.</td>
+                        </tr>
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Judgment Required</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                <div class="flex flex-col gap-2">
+                                    <label class="flex items-center space-x-2">
+                                        <input type="radio" name="judgment" value="Minimal decision-making required" class="form-radio text-indigo-600">
+                                        <span>Minimal decision-making required</span>
+                                    </label>
+                                    <label class="flex items-center space-x-2">
+                                        <input type="radio" name="judgment" value="Some review may be needed" class="form-radio text-indigo-600">
+                                        <span>Some review may be needed</span>
+                                    </label>
+                                    <label class="flex items-center space-x-2">
+                                        <input type="radio" name="judgment" value="Requires human review, but risk is generally low" class="form-radio text-indigo-600">
+                                        <span>Requires human review, but risk is generally low</span>
+                                    </label>
+                                    <label class="flex items-center space-x-2">
+                                        <input type="radio" name="judgment" value="Involves deeper reasoning or contextualized new content generation" class="form-radio text-indigo-600">
+                                        <span>Deeper reasoning / contextualized content generation</span>
+                                    </label>
+                                    <label class="flex items-center space-x-2">
+                                        <input type="radio" name="judgment" value="Nuanced decisions or contextualization, potentially high stakes/risk, specialized expertise" class="form-radio text-indigo-600">
+                                        <span>Nuanced decisions / high stakes / specialized expertise</span>
+                                    </label>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 text-sm text-gray-500">The degree of human discretion, interpretation, or specialized knowledge needed.</td>
+                        </tr>
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Data Sources</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                <div class="flex flex-col gap-2">
+                                    <label class="flex items-center space-x-2">
+                                        <input type="radio" name="dataSources" value="Pulls from a single data source" class="form-radio text-indigo-600">
+                                        <span>Single data source</span>
+                                    </label>
+                                    <label class="flex items-center space-x-2">
+                                        <input type="radio" name="dataSources" value="References 1–2 systems" class="form-radio text-indigo-600">
+                                        <span>References 1–2 systems</span>
+                                    </label>
+                                    <label class="flex items-center space-x-2">
+                                        <input type="radio" name="dataSources" value="References/synthesizes across multiple 2-3 systems (Medium)" class="form-radio text-indigo-600">
+                                        <span>Multiple 2-3 systems (structured)</span>
+                                    </label>
+                                    <label class="flex items-center space-x-2">
+                                        <input type="radio" name="dataSources" value="References/synthesizes across multiple 2-3 systems, data is often unstructured (High)" class="form-radio text-indigo-600">
+                                        <span>Multiple 2-3 systems (unstructured)</span>
+                                    </label>
+                                    <label class="flex items-center space-x-2">
+                                        <input type="radio" name="dataSources" value="References/synthesizes across many 3+ systems, data is often unstructured" class="form-radio text-indigo-600">
+                                        <span>Many 3+ systems (unstructured)</span>
+                                    </label>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 text-sm text-gray-500">The number and complexity of systems/sources data is pulled from and synthesized.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="flex justify-end mt-6">
+                <button id="determineComplexityBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md">Determine Overall Complexity</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Action Maturity Modal -->
+    <div id="actionMaturityModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div id="actionMaturityModalOverlay" class="absolute inset-0"></div>
+        <div class="bg-white p-6 rounded-lg shadow-xl max-w-4xl w-full mx-4 relative z-10">
+            <button id="closeActionMaturityModal" class="absolute top-3 right-3 text-gray-600 hover:text-gray-900 text-2xl font-bold">&times;</button>
+            <h2 class="text-2xl font-semibold mb-4 text-gray-800">Determine Action Maturity</h2>
+            <p class="mb-4 text-gray-700">Select the option that best describes your agent's performance for each criterion:</p>
+
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200 border border-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Criterion</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Your Selection</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Reliability</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                <div class="flex flex-wrap gap-2">
+                                    <label class="flex items-center space-x-2">
+                                        <input type="radio" name="reliability" value="Very Low" class="form-radio text-indigo-600">
+                                        <span>Very Low</span>
+                                    </label>
+                                    <label class="flex items-center space-x-2">
+                                        <input type="radio" name="reliability" value="Low" class="form-radio text-indigo-600">
+                                        <span>Low</span>
+                                    </label>
+                                    <label class="flex items-center space-x-2">
+                                        <input type="radio" name="reliability" value="Medium" class="form-radio text-indigo-600">
+                                        <span>Medium</span>
+                                    </label>
+                                    <label class="flex items-center space-x-2">
+                                        <input type="radio" name="reliability" value="High" class="form-radio text-indigo-600">
+                                        <span>High</span>
+                                    </label>
+                                    <label class="flex items-center space-x-2">
+                                        <input type="radio" name="reliability" value="Very High" class="form-radio text-indigo-600">
+                                        <span>Very High</span>
+                                    </label>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 text-sm text-gray-500">Rarely/Consistently completes the task without errors.</td>
+                        </tr>
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Output Quality</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                <div class="flex flex-wrap gap-2">
+                                    <label class="flex items-center space-x-2">
+                                        <input type="radio" name="outputQuality" value="Very Low" class="form-radio text-indigo-600">
+                                        <span>Very Low</span>
+                                    </label>
+                                    <label class="flex items-center space-x-2">
+                                        <input type="radio" name="outputQuality" value="Low" class="form-radio text-indigo-600">
+                                        <span>Low</span>
+                                    </label>
+                                    <label class="flex items-center space-x-2">
+                                        <input type="radio" name="outputQuality" value="Medium" class="form-radio text-indigo-600">
+                                        <span>Medium</span>
+                                    </label>
+                                    <label class="flex items-center space-x-2">
+                                        <input type="radio" name="outputQuality" value="High" class="form-radio text-indigo-600">
+                                        <span>High</span>
+                                    </label>
+                                    <label class="flex items-center space-x-2">
+                                        <input type="radio" name="outputQuality" value="Very High" class="form-radio text-indigo-600">
+                                        <span>Very High</span>
+                                    </label>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 text-sm text-gray-500">Output is mostly incorrect / accurate, polished, and complete.</td>
+                        </tr>
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Intent Understanding</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                <div class="flex flex-wrap gap-2">
+                                    <label class="flex items-center space-x-2">
+                                        <input type="radio" name="intentUnderstanding" value="Very Low" class="form-radio text-indigo-600">
+                                        <span>Very Low</span>
+                                    </label>
+                                    <label class="flex items-center space-x-2">
+                                        <input type="radio" name="intentUnderstanding" value="Low" class="form-radio text-indigo-600">
+                                        <span>Low</span>
+                                    </label>
+                                    <label class="flex items-center space-x-2">
+                                        <input type="radio" name="intentUnderstanding" value="Medium" class="form-radio text-indigo-600">
+                                        <span>Medium</span>
+                                    </label>
+                                    <label class="flex items-center space-x-2">
+                                        <input type="radio" name="intentUnderstanding" value="High" class="form-radio text-indigo-600">
+                                        <span>High</span>
+                                    </label>
+                                    <label class="flex items-center space-x-2">
+                                        <input type="radio" name="intentUnderstanding" value="Very High" class="form-radio text-indigo-600">
+                                        <span>Very High</span>
+                                    </label>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 text-sm text-gray-500">Frequently misunderstands / Fully understands user intent.</td>
+                        </tr>
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Data Quality</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                <div class="flex flex-wrap gap-2">
+                                    <label class="flex items-center space-x-2">
+                                        <input type="radio" name="dataQuality" value="Very Low" class="form-radio text-indigo-600">
+                                        <span>Very Low</span>
+                                    </label>
+                                    <label class="flex items-center space-x-2">
+                                        <input type="radio" name="dataQuality" value="Low" class="form-radio text-indigo-600">
+                                        <span>Low</span>
+                                    </label>
+                                    <label class="flex items-center space-x-2">
+                                        <input type="radio" name="dataQuality" value="Medium" class="form-radio text-indigo-600">
+                                        <span>Medium</span>
+                                    </label>
+                                    <label class="flex items-center space-x-2">
+                                        <input type="radio" name="dataQuality" value="High" class="form-radio text-indigo-600">
+                                        <span>High</span>
+                                    </label>
+                                    <label class="flex items-center space-x-2">
+                                        <input type="radio" name="dataQuality" value="Very High" class="form-radio text-indigo-600">
+                                        <span>Very High</span>
+                                    </label>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 text-sm text-gray-500">Data is siloed, messy, unavailable / Comprehensive, up-to-date, real-time.</td>
+                        </tr>
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">System Integrations</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                <div class="flex flex-wrap gap-2">
+                                    <label class="flex items-center space-x-2">
+                                        <input type="radio" name="systemIntegrations" value="Very Low" class="form-radio text-indigo-600">
+                                        <span>Very Low</span>
+                                    </label>
+                                    <label class="flex items-center space-x-2">
+                                        <input type="radio" name="systemIntegrations" value="Low" class="form-radio text-indigo-600">
+                                        <span>Low</span>
+                                    </label>
+                                    <label class="flex items-center space-x-2">
+                                        <input type="radio" name="systemIntegrations" value="Medium" class="form-radio text-indigo-600">
+                                        <span>Medium</span>
+                                    </label>
+                                    <label class="flex items-center space-x-2">
+                                        <input type="radio" name="systemIntegrations" value="High" class="form-radio text-indigo-600">
+                                        <span>High</span>
+                                    </label>
+                                    <label class="flex items-center space-x-2">
+                                        <input type="radio" name="systemIntegrations" value="Very High" class="form-radio text-indigo-600">
+                                        <span>Very High</span>
+                                    </label>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 text-sm text-gray-500">Integrated with one system, lacks key access / Fully integrated with all required systems.</td>
+                        </tr>
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Operational Process Maturity</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                <div class="flex flex-wrap gap-2">
+                                    <label class="flex items-center space-x-2">
+                                        <input type="radio" name="operationalProcessMaturity" value="Very Low" class="form-radio text-indigo-600">
+                                        <span>Very Low</span>
+                                    </label>
+                                    <label class="flex items-center space-x-2">
+                                        <input type="radio" name="operationalProcessMaturity" value="Low" class="form-radio text-indigo-600">
+                                        <span>Low</span>
+                                    </label>
+                                    <label class="flex items-center space-x-2">
+                                        <input type="radio" name="operationalProcessMaturity" value="Medium" class="form-radio text-indigo-600">
+                                        <span>Medium</span>
+                                    </label>
+                                    <label class="flex items-center space-x-2">
+                                        <input type="radio" name="operationalProcessMaturity" value="High" class="form-radio text-indigo-600">
+                                        <span>High</span>
+                                    </label>
+                                    <label class="flex items-center space-x-2">
+                                        <input type="radio" name="operationalProcessMaturity" value="Very High" class="form-radio text-indigo-600">
+                                        <span>Very High</span>
+                                    </label>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 text-sm text-gray-500">No standard process / Fully standardized, documented, and consistently followed.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="flex justify-end mt-6">
+                <button id="determineMaturityBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md">Determine Overall Maturity</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Modal Management Variables
+        let currentActionMaturityTargetDropdown = null; // To keep track of which maturity dropdown opened the modal
+
+        // Time savings matrix based on task complexity and action maturity
+        const timeSavingsMatrix = {
+            "Very Low": { "Very Low": 4, "Low": 15, "Medium": 40, "High": 80, "Very High": 90 },
+            "Low": { "Very Low": 3, "Low": 12, "Medium": 30, "High": 70, "Very High": 85 },
+            "Medium": { "Very Low": 2, "Low": 10, "Medium": 25, "High": 50, "Very High": 60 },
+            "High": { "Very Low": 1, "Low": 8, "Medium": 20, "High": 30, "Very High": 50 },
+            "Very High": { "Very Low": 0, "Low": 3, "Medium": 15, "High": 25, "Very High": 40 }
+        };
+
+        // Numeric Mappings for Aggregation
+        const qualitativeToNumeric = {
+            "Very Low": 1,
+            "Low": 2,
+            "Medium": 3,
+            "High": 4,
+            "Very High": 5
+        };
+
+        const numericToQualitative = [
+            { threshold: 1.0, label: "Very Low" },
+            { threshold: 1.8, label: "Low" },
+            { threshold: 2.8, label: "Medium" },
+            { threshold: 3.8, label: "High" },
+            { threshold: 4.8, label: "Very High" }
+        ];
+
+        // Specific Mappings for Task Complexity Criteria
+        const stepsToNumeric = {
+            "1-2": 1,
+            "2-3": 2,
+            "3-5": 3,
+            "5-7": 4,
+            "7+": 5
+        };
+
+        const judgmentToNumeric = {
+            "Minimal decision-making required": 1,
+            "Some review may be needed": 2,
+            "Requires human review, but risk is generally low": 3,
+            "Involves deeper reasoning or contextualized new content generation": 4,
+            "Nuanced decisions or contextualization, potentially high stakes/risk, specialized expertise": 5
+        };
+
+        const dataSourcesToNumeric = {
+            "Pulls from a single data source": 1,
+            "References 1–2 systems": 2,
+            "References/synthesizes across multiple 2-3 systems (Medium)": 3, // Clarified to differentiate
+            "References/synthesizes across multiple 2-3 systems, data is often unstructured (High)": 4, // Clarified to differentiate
+            "References/synthesizes across many 3+ systems, data is often unstructured": 5
+        };
+
+        // DOM elements
+        const form = document.getElementById('roiForm');
+        const calculateBtn = document.getElementById('calculateBtn');
+        const errorMessage = document.getElementById('errorMessage');
+        const errorText = document.getElementById('errorText');
+        const resultsSection = document.getElementById('resultsSection');
+        const insightsSection = document.getElementById('insightsSection');
+        const insightsLoading = document.getElementById('insightsLoading');
+        const insightsContent = document.getElementById('insightsContent');
+        const insightsError = document.getElementById('insightsError');
+        const insightsText = document.getElementById('insightsText');
+
+        /**
+         * Convert task frequency to annual frequency
+         * @param {number} frequency - The frequency number
+         * @param {string} unit - The frequency unit (per day, per week, per month, per year)
+         * @returns {number} Annual frequency
+         */
+        function convertToAnnualFrequency(frequency, unit) {
+            const conversions = {
+                'per day': 260,    // Assuming 260 working days per year
+                'per week': 52,
+                'per month': 12,
+                'per year': 1
+            };
+            return frequency * conversions[unit];
+        }
+
+        /**
+         * Format currency values for display
+         * @param {number} value - The monetary value
+         * @returns {string} Formatted currency string
+         */
+        function formatCurrency(value) {
+            return new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'USD',
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            }).format(value);
+        }
+
+        /**
+         * Format large numbers for display
+         * @param {number} value - The numeric value
+         * @returns {string} Formatted number string
+         */
+        function formatNumber(value) {
+            return new Intl.NumberFormat('en-US', {
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 1
+            }).format(value);
+        }
+
+        /**
+         * Show error message to user
+         * @param {string} message - Error message to display
+         */
+        function showError(message) {
+            errorText.textContent = message;
+            errorMessage.classList.remove('hidden');
+            // Scroll to error message
+            errorMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        /**
+         * Hide error message
+         */
+        function hideError() {
+            errorMessage.classList.add('hidden');
+        }
+
+        /**
+         * Validate form inputs
+         * @returns {boolean} True if valid, false otherwise
+         */
+        function validateInputs() {
+            const taskName = document.getElementById('taskName').value.trim();
+            const medianTime = parseFloat(document.getElementById('medianTime').value);
+            const taskFrequency = parseFloat(document.getElementById('taskFrequency').value);
+            const taskComplexity = document.getElementById('taskComplexityScore').value;
+            const currentMaturity = document.getElementById('currentActionMaturityScore').value;
+            const hourlyRate = parseFloat(document.getElementById('hourlyRate').value);
+            const numSellers = parseInt(document.getElementById('numSellers').value);
+            const devCost = parseFloat(document.getElementById('devCost').value);
+            const maintenanceCost = parseFloat(document.getElementById('maintenanceCost').value);
+            const trainingCost = parseFloat(document.getElementById('trainingCost').value);
+
+            if (!taskName) {
+                showError('Please enter a task name.');
+                return false;
+            }
+
+            if (!medianTime || medianTime <= 0) {
+                showError('Please enter a valid median time greater than 0.');
+                return false;
+            }
+
+            if (!taskFrequency || taskFrequency <= 0) {
+                showError('Please enter a valid task frequency greater than 0.');
+                return false;
+            }
+
+            if (!taskComplexity) {
+                showError('Please select a task complexity score.');
+                return false;
+            }
+
+            if (!currentMaturity) {
+                showError('Please select a current action maturity score.');
+                return false;
+            }
+
+            if (!hourlyRate || hourlyRate <= 0) {
+                showError('Please enter a valid hourly rate greater than 0.');
+                return false;
+            }
+
+            if (!numSellers || numSellers <= 0) {
+                showError('Please enter a valid number of sellers greater than 0.');
+                return false;
+            }
+
+            if (isNaN(devCost) || devCost < 0) {
+                showError('Please enter a valid development cost (0 or greater).');
+                return false;
+            }
+
+            if (isNaN(maintenanceCost) || maintenanceCost < 0) {
+                showError('Please enter a valid maintenance cost (0 or greater).');
+                return false;
+            }
+
+            if (isNaN(trainingCost) || trainingCost < 0) {
+                showError('Please enter a valid training cost (0 or greater).');
+                return false;
+            }
+
+            return true;
+        }
+
+        /**
+         * Classify ROI level based on calculated values
+         * @param {number} agentROI - ROI per agent
+         * @param {number} totalAnnualCostPerAgent - Total annual cost per agent
+         * @returns {string} ROI classification (High, Medium, Low)
+         */
+        function classifyROI(agentROI, totalAnnualCostPerAgent) {
+            const roiPercentage = totalAnnualCostPerAgent > 0 ? (agentROI / totalAnnualCostPerAgent) * 100 : 0;
+            
+            if (agentROI > 1000 && roiPercentage > 20) {
+                return 'High';
+            } else if (agentROI >= 0 && (agentROI <= 1000 || roiPercentage <= 20)) {
+                return 'Medium';
+            } else {
+                return 'Low';
+            }
+        }
+
+        // Modal Control Functions
+        function openModal(modalId, targetDropdownId = null) {
+            document.getElementById(modalId).classList.remove('hidden');
+            document.body.style.overflow = 'hidden'; // Prevent background scrolling
+            if (modalId === 'actionMaturityModal') {
+                currentActionMaturityTargetDropdown = targetDropdownId;
+            }
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.add('hidden');
+            document.body.style.overflow = ''; // Restore background scrolling
+        }
+
+        /**
+         * Generate insights using Gemini API
+         * @param {Object} inputs - All form inputs
+         * @param {Object} results - Calculated results
+         */
+        async function generateInsights(inputs, results) {
+            // Show loading state
+            insightsLoading.classList.remove('hidden');
+            insightsContent.classList.add('hidden');
+            insightsError.classList.add('hidden');
+
+            try {
+                // Classify ROI levels
+                const currentROIClass = classifyROI(results.currentAgentROI, results.totalAnnualCostPerAgent);
+                const potentialROIClass = classifyROI(results.potentialAgentROI, results.totalAnnualCostPerAgent);
+
+                // Construct detailed prompt for Gemini API
+                const prompt = `You are an AI business consultant analyzing an ROI calculation for AI agent deployment. Please provide specific, actionable insights based on the following data:
+
+TASK DETAILS:
+- Task Name: ${inputs.taskName}
+- Task Complexity: ${inputs.taskComplexity}
+- Current Action Maturity: ${inputs.currentMaturity}
+- Potential Action Maturity: Very High (fixed for all potential calculations)
+- Median Human Time per Task: ${inputs.medianTime} minutes
+- Annual Task Frequency: ${results.annualFrequency} times per year
+- Hourly Rate of Seller: $${inputs.hourlyRate}
+- Number of Sellers: ${inputs.numSellers}
+
+COST BREAKDOWN:
+- Development Cost: $${inputs.devCost}
+- Monitoring & Maintenance Costs: $${inputs.maintenanceCost} per year
+- Change Management & Training Costs: $${inputs.trainingCost}
+- Total One-Time Upfront Cost: $${results.totalOneTimeUpfrontCost}
+- Total Annual Recurring Cost: $${results.totalAnnualRecurringCost}
+- Total Annual Cost per Agent: $${results.totalAnnualCostPerAgent}
+
+CALCULATED RESULTS:
+- Current ROI per Agent: $${results.currentAgentROI} (${currentROIClass} ROI)
+- Potential ROI per Agent: $${results.potentialAgentROI} (${potentialROIClass} ROI)
+- Current Organizational ROI: $${results.currentOrgROI}
+- Potential Organizational ROI: $${results.potentialOrgROI}
+
+Please provide:
+1. A concise summary of the current ROI status
+2. Specific, actionable recommendations to reach the potential ROI (which assumes Very High Action Maturity) if current ROI is not High
+3. A clear warning if this use case is inherently low ROI and unlikely to deliver meaningful returns, explaining why
+
+Focus on practical steps related to improving action maturity from the current level to Very High, addressing task complexity challenges, and optimizing the implementation approach. Be specific and actionable in your recommendations.`;
+
+                // API configuration for Gemini
+                const apiKey = ""; // Canvas will provide this at runtime
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+                
+                const chatHistory = [];
+                chatHistory.push({ role: "user", parts: [{ text: prompt }] });
+                const payload = { contents: chatHistory };
+
+                // Make API call to Gemini
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`API request failed: ${response.status}`);
+                }
+
+                const result = await response.json();
+                
+                // Extract and display insights
+                if (result.candidates && result.candidates[0] && result.candidates[0].content && result.candidates[0].content.parts[0]) {
+                    const insightsResponse = result.candidates[0].content.parts[0].text;
+                    insightsText.textContent = insightsResponse;
+                    
+                    // Show insights content
+                    insightsLoading.classList.add('hidden');
+                    insightsContent.classList.remove('hidden');
+                } else {
+                    throw new Error('Unexpected response format from API');
+                }
+
+            } catch (error) {
+                console.error('Error generating insights:', error);
+                
+                // Show error state
+                insightsLoading.classList.add('hidden');
+                insightsError.classList.remove('hidden');
+            }
+        }
+
+        /**
+         * Main ROI calculation function
+         */
+        async function calculateROI() {
+            // Hide previous error messages
+            hideError();
+
+            // Validate inputs
+            if (!validateInputs()) {
+                return;
+            }
+
+            // Get input values
+            const inputs = {
+                taskName: document.getElementById('taskName').value.trim(),
+                medianTime: parseFloat(document.getElementById('medianTime').value),
+                taskFrequency: parseFloat(document.getElementById('taskFrequency').value),
+                frequencyUnit: document.getElementById('frequencyUnit').value,
+                taskComplexity: document.getElementById('taskComplexityScore').value,
+                currentMaturity: document.getElementById('currentActionMaturityScore').value,
+                hourlyRate: parseFloat(document.getElementById('hourlyRate').value),
+                numSellers: parseInt(document.getElementById('numSellers').value),
+                devCost: parseFloat(document.getElementById('devCost').value) || 0,
+                maintenanceCost: parseFloat(document.getElementById('maintenanceCost').value) || 0,
+                trainingCost: parseFloat(document.getElementById('trainingCost').value) || 0
+            };
+
+            // Get time savings percentages from matrix
+            const currentTimeSavingsPercent = timeSavingsMatrix[inputs.taskComplexity][inputs.currentMaturity];
+            const potentialTimeSavingsPercent = timeSavingsMatrix[inputs.taskComplexity]["Very High"]; // Always use Very High for potential
+
+            // Calculate time saved per task (in minutes)
+            const currentTimeSavedPerTask = inputs.medianTime * (currentTimeSavingsPercent / 100);
+            const potentialTimeSavedPerTask = inputs.medianTime * (potentialTimeSavingsPercent / 100);
+
+            // Convert frequency to annual
+            const annualFrequency = convertToAnnualFrequency(inputs.taskFrequency, inputs.frequencyUnit);
+
+            // Calculate annual time savings (in minutes, then convert to hours)
+            const currentAnnualTimeSavingsMinutes = currentTimeSavedPerTask * annualFrequency;
+            const potentialAnnualTimeSavingsMinutes = potentialTimeSavedPerTask * annualFrequency;
+            
+            const currentAnnualTimeSavingsHours = currentAnnualTimeSavingsMinutes / 60;
+            const potentialAnnualTimeSavingsHours = potentialAnnualTimeSavingsMinutes / 60;
+
+            // Calculate annual cost savings per agent
+            const currentAnnualCostSavings = currentAnnualTimeSavingsHours * inputs.hourlyRate;
+            const potentialAnnualCostSavings = potentialAnnualTimeSavingsHours * inputs.hourlyRate;
+
+            // Separate cost categories
+            const totalAnnualRecurringCost = inputs.maintenanceCost; // Total for whole system per year
+            const totalOneTimeUpfrontCost = inputs.devCost + inputs.trainingCost; // Total for whole system
+
+            // Calculate costs per agent
+            const annualizedOneTimeCostPerAgent = totalOneTimeUpfrontCost / inputs.numSellers;
+            const totalAnnualCostPerAgent = annualizedOneTimeCostPerAgent + (totalAnnualRecurringCost / inputs.numSellers);
+
+            // Calculate ROI per agent (per year)
+            const currentAgentROI = currentAnnualCostSavings - totalAnnualCostPerAgent;
+            const potentialAgentROI = potentialAnnualCostSavings - totalAnnualCostPerAgent;
+
+            // Calculate organizational ROI (total per year)
+            const currentOrgROI = (currentAnnualCostSavings * inputs.numSellers) - (totalOneTimeUpfrontCost + totalAnnualRecurringCost);
+            const potentialOrgROI = (potentialAnnualCostSavings * inputs.numSellers) - (totalOneTimeUpfrontCost + totalAnnualRecurringCost);
+
+            // Store results for insights generation
+            const results = {
+                currentTimeSavingsHours: currentAnnualTimeSavingsHours,
+                potentialTimeSavingsHours: potentialAnnualTimeSavingsHours,
+                currentCostSavings: currentAnnualCostSavings,
+                potentialCostSavings: potentialAnnualCostSavings,
+                currentAgentROI: currentAgentROI,
+                potentialAgentROI: potentialAgentROI,
+                currentOrgROI: currentOrgROI,
+                potentialOrgROI: potentialOrgROI,
+                totalOneTimeUpfrontCost: totalOneTimeUpfrontCost,
+                totalAnnualRecurringCost: totalAnnualRecurringCost,
+                totalAnnualCostPerAgent: totalAnnualCostPerAgent,
+                annualFrequency: annualFrequency
+            };
+
+            // Update display with calculated results
+            document.getElementById('currentTimeSavings').textContent = formatNumber(currentAnnualTimeSavingsHours);
+            document.getElementById('potentialTimeSavings').textContent = formatNumber(potentialAnnualTimeSavingsHours);
+            document.getElementById('currentCostSavings').textContent = formatCurrency(currentAnnualCostSavings);
+            document.getElementById('potentialCostSavings').textContent = formatCurrency(potentialAnnualCostSavings);
+            document.getElementById('currentAgentROI').textContent = formatCurrency(currentAgentROI);
+            document.getElementById('potentialAgentROI').textContent = formatCurrency(potentialAgentROI);
+            document.getElementById('currentOrgROI').textContent = formatCurrency(currentOrgROI);
+            document.getElementById('potentialOrgROI').textContent = formatCurrency(potentialOrgROI);
+
+            // Show results section
+            resultsSection.classList.remove('hidden');
+            insightsSection.classList.remove('hidden');
+
+            // Scroll to results
+            resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+            // Generate AI insights
+            await generateInsights(inputs, results);
+        }
+
+        // Event listeners - DOMContentLoaded
+        document.addEventListener('DOMContentLoaded', () => {
+            // Form submission
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                // Disable button during calculation
+                calculateBtn.disabled = true;
+                calculateBtn.textContent = 'Calculating...';
+                
+                try {
+                    await calculateROI();
+                } finally {
+                    // Re-enable button
+                    calculateBtn.disabled = false;
+                    calculateBtn.textContent = 'Calculate ROI';
+                }
+            });
+
+            // Input validation for number fields
+            const numberInputs = ['medianTime', 'taskFrequency', 'hourlyRate', 'numSellers', 'devCost', 'maintenanceCost', 'trainingCost'];
+            numberInputs.forEach(inputId => {
+                const input = document.getElementById(inputId);
+                input.addEventListener('input', () => {
+                    // Remove any non-numeric characters except decimal point
+                    if (inputId !== 'numSellers') {
+                        input.value = input.value.replace(/[^0-9.]/g, '');
+                    } else {
+                        input.value = input.value.replace(/[^0-9]/g, '');
+                    }
+                });
+            });
+
+            // Clear error message when user starts typing
+            const allInputs = document.querySelectorAll('input, select');
+            allInputs.forEach(input => {
+                input.addEventListener('input', hideError);
+                input.addEventListener('change', hideError);
+            });
+
+            // Open Task Complexity Modal
+            document.getElementById('openTaskComplexityModal').addEventListener('click', () => {
+                openModal('taskComplexityModal');
+            });
+
+            // Close Task Complexity Modal
+            document.getElementById('closeTaskComplexityModal').addEventListener('click', () => {
+                closeModal('taskComplexityModal');
+            });
+
+
+
+            document.getElementById('taskComplexityModalOverlay').addEventListener('click', (e) => {
+                if (e.target === document.getElementById('taskComplexityModalOverlay')) {
+                    closeModal('taskComplexityModal');
+                }
+            });
+
+            // Open Current Action Maturity Modal
+            document.getElementById('openCurrentActionMaturityModal').addEventListener('click', () => {
+                openModal('actionMaturityModal', 'currentActionMaturityScore');
+            });
+
+            // Close Action Maturity Modal
+            document.getElementById('closeActionMaturityModal').addEventListener('click', () => {
+                closeModal('actionMaturityModal');
+            });
+
+
+
+            document.getElementById('actionMaturityModalOverlay').addEventListener('click', (e) => {
+                if (e.target === document.getElementById('actionMaturityModalOverlay')) {
+                    closeModal('actionMaturityModal');
+                }
+            });
+
+            // Task Complexity Aggregation Logic
+            document.getElementById('determineComplexityBtn').addEventListener('click', () => {
+                const selectedSteps = document.querySelector('input[name="steps"]:checked')?.value;
+                const selectedJudgment = document.querySelector('input[name="judgment"]:checked')?.value;
+                const selectedDataSources = document.querySelector('input[name="dataSources"]:checked')?.value;
+
+                if (!selectedSteps || !selectedJudgment || !selectedDataSources) {
+                    alert('Please select a level for all complexity criteria.');
+                    return;
+                }
+
+                const numericSteps = stepsToNumeric[selectedSteps];
+                const numericJudgment = judgmentToNumeric[selectedJudgment];
+                const numericDataSources = dataSourcesToNumeric[selectedDataSources];
+
+                const averageScore = (numericSteps + numericJudgment + numericDataSources) / 3;
+
+                let overallComplexity = "Very Low"; // Default
+                for (const mapping of numericToQualitative) {
+                    if (averageScore >= mapping.threshold) {
+                        overallComplexity = mapping.label;
+                    } else {
+                        break; // Stop when the threshold is not met
+                    }
+                }
+
+                document.getElementById('taskComplexityScore').value = overallComplexity;
+                closeModal('taskComplexityModal');
+            });
+
+            // Action Maturity Aggregation Logic
+            document.getElementById('determineMaturityBtn').addEventListener('click', () => {
+                const selectedReliability = document.querySelector('input[name="reliability"]:checked')?.value;
+                const selectedOutputQuality = document.querySelector('input[name="outputQuality"]:checked')?.value;
+                const selectedIntentUnderstanding = document.querySelector('input[name="intentUnderstanding"]:checked')?.value;
+                const selectedDataQuality = document.querySelector('input[name="dataQuality"]:checked')?.value;
+                const selectedSystemIntegrations = document.querySelector('input[name="systemIntegrations"]:checked')?.value;
+                const selectedOperationalProcessMaturity = document.querySelector('input[name="operationalProcessMaturity"]:checked')?.value;
+
+                if (!selectedReliability || !selectedOutputQuality || !selectedIntentUnderstanding ||
+                    !selectedDataQuality || !selectedSystemIntegrations || !selectedOperationalProcessMaturity) {
+                    alert('Please select a level for all maturity criteria.');
+                    return;
+                }
+
+                const numericReliability = qualitativeToNumeric[selectedReliability];
+                const numericOutputQuality = qualitativeToNumeric[selectedOutputQuality];
+                const numericIntentUnderstanding = qualitativeToNumeric[selectedIntentUnderstanding];
+                const numericDataQuality = qualitativeToNumeric[selectedDataQuality];
+                const numericSystemIntegrations = qualitativeToNumeric[selectedSystemIntegrations];
+                const numericOperationalProcessMaturity = qualitativeToNumeric[selectedOperationalProcessMaturity];
+
+                const averageScore = (
+                    numericReliability +
+                    numericOutputQuality +
+                    numericIntentUnderstanding +
+                    numericDataQuality +
+                    numericSystemIntegrations +
+                    numericOperationalProcessMaturity
+                ) / 6;
+
+                let overallMaturity = "Very Low"; // Default
+                for (const mapping of numericToQualitative) {
+                    if (averageScore >= mapping.threshold) {
+                        overallMaturity = mapping.label;
+                    } else {
+                        break;
+                    }
+                }
+
+                if (currentActionMaturityTargetDropdown) {
+                    document.getElementById(currentActionMaturityTargetDropdown).value = overallMaturity;
+                }
+                closeModal('actionMaturityModal');
+            });
+
+            // Close modals with Escape key
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    closeModal('taskComplexityModal');
+                    closeModal('actionMaturityModal');
+                }
+            });
+        });
+    </script>
+</body>
+</html> 
